@@ -1,0 +1,6 @@
+<%= form_for @datum do |f| %>
+  <%= f.text_field 'name', placeholder: 'Name' %>
+  <%= f.file_field 'file', placeholder: 'File' %>
+  <%= f.submit 'Aceptar' %>
+
+<% end %>

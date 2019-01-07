@@ -1,0 +1,8 @@
+
+<%= form_tag print_datum_path(@datum), method: :get do  %>
+  <label for="group_column">Columna a agrupar</label>
+  <%= select_tag 'group_column', options_for_select(@datum.headers.pluck(:name).each_with_index.map { |x, i| [x, i + 1] }) %>
+  <label for="group_column">Columnas a contar (separadas por coma)</label>
+  <%= text_field_tag 'count_columns', '', required: true  %>
+  <%= submit_tag 'Aceptar' %>
+<% end %>

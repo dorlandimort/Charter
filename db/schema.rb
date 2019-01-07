@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181212193522) do
+ActiveRecord::Schema.define(version: 20181213201912) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,11 +25,18 @@ ActiveRecord::Schema.define(version: 20181212193522) do
 
   create_table "data", force: :cascade do |t|
     t.string "name", null: false
-    t.string "file", null: false
+    t.string "file"
     t.integer "columns"
     t.integer "rows"
     t.integer "group_column"
-    t.integer "count_column"
+    t.json "header_columns", default: {"columns"=>[]}
+    t.boolean "reverse", default: false
+  end
+
+  create_table "headers", force: :cascade do |t|
+    t.string "name"
+    t.bigint "datum_id"
+    t.index ["datum_id"], name: "index_headers_on_datum_id"
   end
 
 end

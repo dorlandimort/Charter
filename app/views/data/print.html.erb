@@ -1,0 +1,92 @@
+<%= content_for :head do %>
+  <%= javascript_include_tag 'canvasjs/canvasjs.min' %>
+  <%= javascript_include_tag 'blockui/jquery.blockUI' %>
+<% end %>
+
+
+<script type="text/javascript" charset="utf-8">
+  $(document).ready(async function() {
+    let id = $("#datum_id").val();
+    try {
+        $.blockUI();
+        let chartData = await retrieveData(id);
+        createCharts(chartData);
+    } catch(error) {
+        console.log(error);
+    } finally {
+        $.unblockUI();
+    }
+  });
+
+    async function retrieveData(id) {
+        return new Promise((resolve, reject) => {
+           $.ajax({
+               type: 'GET',
+               url: `/data/${id}/chart_data`,
+               dataType: 'json',
+               success: result => {
+                  resolve(result);
+               },
+               error: response => {
+                  reject(false);
+               }
+           });
+        });
+    }
+
+    function createCharts(rawData) {
+        console.log(rawData);
+        let data = rawData.chart_data;
+        let titles = rawData.titles;
+        let keys = Object.keys(data).sort();
+
+        for (let i = 0; i < titles.length; i++) {
+            addPage(titles[i]);
+        }
+
+        for (let i = 0; i < keys.length; i++) {
+            let chartData = data[keys[i]];
+            let dataPoints = [];
+            let categories = Object.keys(chartData);
+            for (let i = 0; i < categories.length; i++) {
+                let category = chartData[categories[i]];
+                dataPoints.push({
+                    y: category.total,
+                    label: categories[i],
+                    percentage: category.percentage
+                });
+            }
+
+            let keyId = keys[i].replace(/ /g,'');
+            console.log(keyId);
+            let chart = new CanvasJS.Chart(`${keyId}`, {
+                animationEnabled: true,
+                theme: "light2",
+                title: {
+                    text: keys[i]
+                },
+                axisX: {
+                    interval: 1
+                },
+                data: [{
+                    type: "bar",
+                    name: "companies",
+                    dataPoints: dataPoints
+                }]
+            });
+            chart.render();
+        }
+    }
+
+    function addPage(key) {
+      let html = `
+        <div class="page">
+          <div class="subpage">
+            <div class="chart" id="${key}"></div>
+          </div>
+        </div>
+      `;
+      $(".book").append(html);
+    }
+</script>
+<input type="hidden" id="datum_id" value="<%= @datum.id %>">
